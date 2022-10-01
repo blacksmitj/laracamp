@@ -3,6 +3,7 @@
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\User\CheckoutController;
 use App\Http\Controllers\UserController;
+use GuzzleHttp\Middleware;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,15 +21,20 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-Route::get('checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
-Route::get('checkout/{camp:slug}', [CheckoutController::class, 'create'])->name('checkout.create');
-Route::post('checkout/{camp}', [CheckoutController::class, 'store'])->name('checkout.store');
-
 // sociallite routes
 Route::get('sign-in-google', [UserController::class, 'google'])->name('user.login.google');
 Route::get('auth/google/callback', [UserController::class, 'handleProviderCallback'])->name('user.google.callback');
 
-Route::get('dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
+
+Route::middleware(['auth'])->group(function () {
+    //Checkout Routes
+    Route::get('dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
+    Route::get('checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::get('checkout/{camp:slug}', [CheckoutController::class, 'create'])->name('checkout.create');
+    
+    //User Dashboards
+    Route::post('checkout/{camp}', [CheckoutController::class, 'store'])->name('checkout.store');
+});
 
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
